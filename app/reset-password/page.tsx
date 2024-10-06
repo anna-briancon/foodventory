@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
@@ -10,57 +10,30 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
-export default function Register() {
+export default function ResetPassword() {
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const supabase = createClientComponentClient()
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setMessage('')
     setIsLoading(true)
 
     try {
-      console.log('Attempting to sign up...')
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/update-password`,
       })
 
-      if (error) {
-        console.error('Sign up error:', error)
-        throw error
-      }
+      if (error) throw error
 
-      console.log('Sign up successful:', data)
-
-      if (data.user) {
-        console.log('Attempting to sign in...')
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
-
-        if (signInError) {
-          console.error('Sign in error:', signInError)
-          throw signInError
-        }
-
-        console.log('Sign in successful')
-        router.push('/dashboard')
-        router.refresh()
-      } else {
-        setError('Inscription réussie, mais aucun utilisateur retourné. Veuillez vous connecter manuellement.')
-      }
+      setMessage('Vérifiez votre email pour le lien de réinitialisation du mot de passe.')
     } catch (error) {
-      console.error('Registration error:', error)
-      setError(`Échec de l'inscription: ${error.message || 'Veuillez réessayer.'}`)
+      setError('Échec de l\'envoi de l\'email de réinitialisation. Veuillez réessayer.')
     } finally {
       setIsLoading(false)
     }
@@ -70,10 +43,10 @@ export default function Register() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-purple-100">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Créer un compte Foodventory</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Réinitialiser le mot de passe</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleRegister} className="space-y-4">
+          <form onSubmit={handleResetPassword} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -85,32 +58,26 @@ export default function Register() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+            {message && (
+              <Alert>
+                <AlertDescription>{message}</AlertDescription>
+              </Alert>
+            )}
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Inscription en cours..." : "S'inscrire"}
+              {isLoading ? 'Envoi en cours...' : 'Réinitialiser le mot de passe'}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600">
-            Vous avez déjà un compte ?{' '}
+            Retour à la{' '}
             <Link href="/login" className="text-blue-600 hover:underline">
-              Se connecter
+              page de connexion
             </Link>
           </p>
         </CardFooter>

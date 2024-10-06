@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'export',
+    // Remove the output: 'export' line if you want to use API routes and server-side features
+    // output: 'export',
     images: {
       unoptimized: true,
     },
-    basePath: '/foodventory.github.io',
   };
   
   export default nextConfig;

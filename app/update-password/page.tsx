@@ -38,7 +38,8 @@ export default function UpdatePassword() {
 
       setMessage('Mot de passe mis à jour avec succès. Redirection vers la page de connexion...')
       setTimeout(() => router.push('/login'), 3000)
-    } catch (error) {
+    } catch (err) {
+      console.error('Erreur de mise à jour du mot de passe:', err)
       setError('Échec de la mise à jour du mot de passe. Veuillez réessayer.')
     } finally {
       setIsLoading(false)

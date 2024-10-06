@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../components/ui/card"
-import { Utensils, RefrigeratorIcon, BookOpen } from 'lucide-react'
+import { RefrigeratorIcon, BookOpen } from 'lucide-react'
 
 export default function Home() {
   return (
@@ -50,7 +50,7 @@ export default function Home() {
               <Link href="/login">Se connecter</Link>
             </Button>
             <Button asChild variant="outline" className="border-black text-black hover:bg-gray-100">
-              <Link href="/register">S'inscrire</Link>
+              <Link href="/register">S&apos;inscrire</Link>
             </Button>
           </div>
         </CardContent>

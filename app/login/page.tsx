@@ -2,39 +2,34 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
   const router = useRouter()
   const supabase = createClientComponentClient()
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
     setIsLoading(true)
-
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
-
-      if (error) throw error
-
+      if (signInError) throw signInError
       router.push('/dashboard')
-      router.refresh()
     } catch (error) {
-      setError('Échec de la connexion. Vérifiez vos identifiants.')
+      console.error('Erreur de connexion:', error)
+      setErrorMessage('Erreur de connexion. Vérifiez vos identifiants.')
     } finally {
       setIsLoading(false)
     }
@@ -63,8 +58,8 @@ export default function Login() {
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Mot de passe</Label>
                 <Link href="/reset-password" className="text-sm text-blue-600 hover:underline">
-                {"Mot de passe oublie ? "}             
-                  
+                  {"Mot de passe oublie ? "}
+
                 </Link>
               </div>
               <Input
@@ -76,9 +71,9 @@ export default function Login() {
                 required
               />
             </div>
-            {error && (
+            {errorMessage && (
               <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
             )}
             <Button type="submit" className="w-full" disabled={isLoading}>
@@ -90,7 +85,7 @@ export default function Login() {
           <p className="text-sm text-gray-600">
             {"Vous n'avez pas de compte ? "}
             <Link href="/register" className="text-blue-600 hover:underline">
-              {"S'inscrire"}             
+              {"S'inscrire"}
             </Link>
           </p>
         </CardFooter>

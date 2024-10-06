@@ -30,7 +30,8 @@ export default function ResetPassword() {
       if (error) throw error
 
       setMessage('Vérifiez votre email pour le lien de réinitialisation du mot de passe.')
-    } catch (error) {
+    } catch (err) {
+      console.error('Erreur de réinitialisation du mot de passe:', err)
       setError('Échec de l\'envoi de l\'email de réinitialisation. Veuillez réessayer.')
     } finally {
       setIsLoading(false)

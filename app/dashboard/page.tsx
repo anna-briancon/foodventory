@@ -93,6 +93,7 @@ export default function Dashboard() {
   const [isDeletePlaceDialogOpen, setIsDeletePlaceDialogOpen] = useState(false)
   const router = useRouter()
   const supabase = createClientComponentClient()
+  
   const fetchUserData = async (userId) => {
     const { data: placesData, error: placesError } = await supabase
       .from('places')
@@ -130,7 +131,7 @@ export default function Dashboard() {
         setUser(user)
         await fetchUserData(user.id)
       } else {
-        router.push('/login')
+        router.push('/')
       }
       setIsLoading(false)
     }
@@ -423,7 +424,7 @@ export default function Dashboard() {
                           className="border-black-300 focus:border-black-500"
                         />
                       </div>
-                      <Label className="flex items-center space-y-2 text-black-600">Date d'expiration : </Label>
+                      <Label className="flex items-center space-y-2 text-black-600">Date d&apos;expiration : </Label>
                       <div className="flex items-center space-x-2">
                         <Input
                           type="date"
@@ -535,7 +536,7 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-800">Confirmer la suppression</DialogTitle>
             <DialogDescription className="text-gray-600">
-              Êtes-vous sûr de vouloir supprimer l'endroit "{placeToDelete?.name}" ?
+              Êtes-vous sûr de vouloir supprimer l'endroit &quot;{placeToDelete?.name}&quot; ?
               Cette action supprimera également tous les aliments associés à cet endroit.
               Cette action est irréversible.
             </DialogDescription>
@@ -551,11 +552,11 @@ export default function Dashboard() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="bg-white rounded-lg p-6 max-w-md mx-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-800">Modifier l'aliment</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-gray-800">Modifier l&apos;aliment</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="editFoodName" className="text-gray-700">Nom de l'aliment</Label>
+              <Label htmlFor="editFoodName" className="text-gray-700">Nom de l&apos;aliment</Label>
               <Input
                 id="editFoodName"
                 value={foodToEdit?.name || ''}
@@ -575,7 +576,7 @@ export default function Dashboard() {
               />
             </div>
             <div>
-              <Label htmlFor="editFoodExpirationDate" className="text-gray-700">Date d'expiration</Label>
+              <Label htmlFor="editFoodExpirationDate" className="text-gray-700">Date d&apos;expiration</Label>
               <Input
                 id="editFoodExpirationDate"
                 type="date"

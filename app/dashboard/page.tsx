@@ -93,28 +93,6 @@ export default function Dashboard() {
   const [isDeletePlaceDialogOpen, setIsDeletePlaceDialogOpen] = useState(false)
   const router = useRouter()
   const supabase = createClientComponentClient()
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  )
-
-  useEffect(() => {
-    const fetchUserAndData = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setUser(user)
-        await fetchUserData(user.id)
-      } else {
-        router.push('/login')
-      }
-      setIsLoading(false)
-    }
-    fetchUserAndData()
-  }, [fetchUserData, router, supabase.auth])
-
   const fetchUserData = async (userId) => {
     const { data: placesData, error: placesError } = await supabase
       .from('places')
@@ -137,6 +115,29 @@ export default function Dashboard() {
     if (recipesError) setError('Erreur lors de la récupération des recettes' + recipes)
     else setRecipes(recipesData)
   }
+  
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
+  useEffect(() => {
+    const fetchUserAndData = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUser(user)
+        await fetchUserData(user.id)
+      } else {
+        router.push('/login')
+      }
+      setIsLoading(false)
+    }
+    fetchUserAndData()
+  }, [fetchUserData, router, supabase.auth])
+
+  
 
   const addPlace = async () => {
     if (newPlace && user) {

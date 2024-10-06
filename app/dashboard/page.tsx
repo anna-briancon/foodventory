@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Plus, X, Trash2, Utensils, MapPin, Edit, GripVertical } from 'lucide-react'
 
 const SortableItem = ({ id, food, onEdit, onDelete }) => {
@@ -113,28 +113,28 @@ export default function Dashboard() {
       setIsLoading(false)
     }
     fetchUserAndData()
-  }, [])
+  }, [fetchUserData, router, supabase.auth])
 
   const fetchUserData = async (userId) => {
-    let { data: placesData, error: placesError } = await supabase
+    const { data: placesData, error: placesError } = await supabase
       .from('places')
       .select('*')
       .eq('user_id', userId)
     if (placesError) setError('Erreur lors de la récupération des lieux')
     else setPlaces(placesData)
 
-    let { data: foodsData, error: foodsError } = await supabase
+    const { data: foodsData, error: foodsError } = await supabase
       .from('foods')
       .select('*, places(id, name)')
       .eq('places.user_id', userId)
     if (foodsError) setError('Erreur lors de la récupération des aliments')
     else setFoods(foodsData)
 
-    let { data: recipesData, error: recipesError } = await supabase
+    const { data: recipesData, error: recipesError } = await supabase
       .from('recipes')
       .select('*, recipe_ingredients(food_id, quantity)')
       .eq('user_id', userId)
-    if (recipesError) setError('Erreur lors de la récupération des recettes')
+    if (recipesError) setError('Erreur lors de la récupération des recettes' + recipes)
     else setRecipes(recipesData)
   }
 
@@ -517,7 +517,7 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-800">Confirmer la suppression</DialogTitle>
             <DialogDescription className="text-gray-600">
-              Êtes-vous sûr de vouloir supprimer l'aliment "{foodToDelete?.name}" ?
+            {"Êtes-vous sûr de vouloir supprimer l'aliment \"" + foodToDelete?.name + "\" ?"}
               Cette action est irréversible.
             </DialogDescription>
           </DialogHeader>

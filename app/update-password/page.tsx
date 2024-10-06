@@ -23,7 +23,7 @@ export default function UpdatePassword() {
     if (accessToken) {
       supabase.auth.setSession({ access_token: accessToken, refresh_token: '' })
     }
-  }, [])
+  }, [supabase.auth])
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault()

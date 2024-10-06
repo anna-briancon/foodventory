@@ -24,7 +24,7 @@ export default function Login() {
     setIsLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
@@ -63,7 +63,8 @@ export default function Login() {
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Mot de passe</Label>
                 <Link href="/reset-password" className="text-sm text-blue-600 hover:underline">
-                  Mot de passe oublié ?
+                {"Mot de passe oublie ? "}             
+                  
                 </Link>
               </div>
               <Input
@@ -87,9 +88,9 @@ export default function Login() {
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600">
-            Vous n'avez pas de compte ?{' '}
+            {"Vous n'avez pas de compte ? "}
             <Link href="/register" className="text-blue-600 hover:underline">
-              S'inscrire
+              {"S'inscrire"}             
             </Link>
           </p>
         </CardFooter>

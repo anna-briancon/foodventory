@@ -536,7 +536,7 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-800">Confirmer la suppression</DialogTitle>
             <DialogDescription className="text-gray-600">
-              Êtes-vous sûr de vouloir supprimer l'endroit &quot;{placeToDelete?.name}&quot; ?
+              Êtes-vous sûr de vouloir supprimer l&apos;endroit &quot;{placeToDelete?.name}&quot; ?
               Cette action supprimera également tous les aliments associés à cet endroit.
               Cette action est irréversible.
             </DialogDescription>

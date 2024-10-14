@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
@@ -15,7 +15,22 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Plus, X, Trash2, Utensils, MapPin, Edit, GripVertical } from 'lucide-react'
 
-const SortableItem = ({ id, food, onEdit, onDelete }) => {
+interface Food {
+  id: string;
+  name: string;
+  quantity: number;
+  expiration_date?: string;
+  // Ajoutez d'autres propriétés selon vos besoins
+}
+
+interface SortableItemProps {
+  id: string;
+  food: Food;
+  onEdit: (food: Food) => void;
+  onDelete: (food: Food) => void;
+}
+
+const SortableItem: React.FC<SortableItemProps> = ({ id, food, onEdit, onDelete }) => {
   const {
     attributes,
     listeners,

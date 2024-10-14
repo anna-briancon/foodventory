@@ -109,28 +109,29 @@ export default function Dashboard() {
   const router = useRouter()
   const supabase = createClientComponentClient()
   
-  const fetchUserData = async (userId) => {
+  const fetchUserData = useCallback(async (userId: string) => {
     const { data: placesData, error: placesError } = await supabase
       .from('places')
       .select('*')
       .eq('user_id', userId)
     if (placesError) setError('Erreur lors de la récupération des lieux')
     else setPlaces(placesData)
-
+  
     const { data: foodsData, error: foodsError } = await supabase
       .from('foods')
       .select('*, places(id, name)')
       .eq('places.user_id', userId)
     if (foodsError) setError('Erreur lors de la récupération des aliments')
     else setFoods(foodsData)
-
+  
     const { data: recipesData, error: recipesError } = await supabase
       .from('recipes')
       .select('*, recipe_ingredients(food_id, quantity)')
       .eq('user_id', userId)
-    if (recipesError) setError('Erreur lors de la récupération des recettes' + recipes)
+    if (recipesError) setError('Erreur lors de la récupération des recettes')
     else setRecipes(recipesData)
-  }
+  }, [supabase, setError, setPlaces, setFoods, setRecipes])
+  
   
   const sensors = useSensors(
     useSensor(PointerSensor),

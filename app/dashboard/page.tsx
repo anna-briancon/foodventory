@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
@@ -20,7 +20,17 @@ interface Food {
   name: string;
   quantity: number;
   expiration_date?: string;
-  // Ajoutez d'autres propriétés selon vos besoins
+  place_id: string;
+  places?: {
+    id: string;
+    name: string;
+  };
+}
+
+interface Place {
+  id: string;
+  name: string;
+  user_id: string;
 }
 
 interface SortableItemProps {
@@ -87,10 +97,9 @@ const SortableItem: React.FC<SortableItemProps> = ({ id, food, onEdit, onDelete 
 }
 
 export default function Dashboard() {
-  const [user, setUser] = useState(null)
-  const [places, setPlaces] = useState([])
-  const [foods, setFoods] = useState([])
-  const [recipes, setRecipes] = useState([])
+  const [user, setUser] = useState<any>(null)
+  const [places, setPlaces] = useState<Place[]>([])
+  const [foods, setFoods] = useState<Food[]>([])
   const [newPlace, setNewPlace] = useState('')
   const [newFood, setNewFood] = useState('')
   const [selectedPlace, setSelectedPlace] = useState('')
@@ -98,13 +107,13 @@ export default function Dashboard() {
   const [error, setError] = useState('')
   const [showAddPlace, setShowAddPlace] = useState(false)
   const [showAddFood, setShowAddFood] = useState(false)
-  const [foodToDelete, setFoodToDelete] = useState(null)
-  const [foodToEdit, setFoodToEdit] = useState(null)
+  const [foodToDelete, setFoodToDelete] = useState<Food | null>(null)
+  const [foodToEdit, setFoodToEdit] = useState<Food | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [newFoodQuantity, setNewFoodQuantity] = useState(1)
   const [newFoodExpirationDate, setNewFoodExpirationDate] = useState('')
-  const [placeToDelete, setPlaceToDelete] = useState(null)
+  const [placeToDelete, setPlaceToDelete] = useState<Place | null>(null)
   const [isDeletePlaceDialogOpen, setIsDeletePlaceDialogOpen] = useState(false)
   const router = useRouter()
   const supabase = createClientComponentClient()
@@ -123,15 +132,7 @@ export default function Dashboard() {
       .eq('places.user_id', userId)
     if (foodsError) setError('Erreur lors de la récupération des aliments')
     else setFoods(foodsData)
-  
-    const { data: recipesData, error: recipesError } = await supabase
-      .from('recipes')
-      .select('*, recipe_ingredients(food_id, quantity)')
-      .eq('user_id', userId)
-    if (recipesError) setError('Erreur lors de la récupération des recettes')
-    else setRecipes(recipesData)
-  }, [supabase, setError, setPlaces, setFoods, setRecipes])
-  
+  }, [supabase, setError, setPlaces, setFoods])
   
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -153,8 +154,6 @@ export default function Dashboard() {
     }
     fetchUserAndData()
   }, [fetchUserData, router, supabase.auth])
-
-  
 
   const addPlace = async () => {
     if (newPlace && user) {
@@ -270,7 +269,7 @@ export default function Dashboard() {
   }
 
   const groupFoodsByPlace = () => {
-    const groupedFoods = {}
+    const groupedFoods: { [key: string]: { id: string; name: string; foods: Food[] } } = {}
     places.forEach(place => {
       groupedFoods[place.id] = {
         id: place.id,
@@ -286,7 +285,7 @@ export default function Dashboard() {
     return Object.values(groupedFoods)
   }
 
-  const handleDragEnd = async (event) => {
+  const handleDragEnd = async (event: any) => {
     const { active, over } = event
 
     if (active.id !== over.id) {
@@ -369,6 +368,7 @@ export default function Dashboard() {
                       if (showAddPlace) {
                         setShowAddPlace(false)
                       }
+                    
                     }}
                     variant={showAddFood ? "destructive" : "default"}
                     className="w-full sm:w-auto flex items-center justify-center bg-black hover:bg-gray-800 text-white transition-colors"
@@ -535,7 +535,7 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-800">Confirmer la suppression</DialogTitle>
             <DialogDescription className="text-gray-600">
-            {"Êtes-vous sûr de vouloir supprimer l'aliment \"" + foodToDelete?.name + "\" ?"}
+              {`Êtes-vous sûr de vouloir supprimer l'aliment "${foodToDelete?.name}" ?`}
               Cette action est irréversible.
             </DialogDescription>
           </DialogHeader>
@@ -552,7 +552,7 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-800">Confirmer la suppression</DialogTitle>
             <DialogDescription className="text-gray-600">
-              Êtes-vous sûr de vouloir supprimer l&apos;endroit &quot;{placeToDelete?.name}&quot; ?
+              {`Êtes-vous sûr de vouloir supprimer l'endroit "${placeToDelete?.name}" ?`}
               Cette action supprimera également tous les aliments associés à cet endroit.
               Cette action est irréversible.
             </DialogDescription>
@@ -576,7 +576,7 @@ export default function Dashboard() {
               <Input
                 id="editFoodName"
                 value={foodToEdit?.name || ''}
-                onChange={(e) => setFoodToEdit({ ...foodToEdit, name: e.target.value })}
+                onChange={(e) => setFoodToEdit(foodToEdit ? { ...foodToEdit, name: e.target.value } : null)}
                 className="w-full mt-1"
               />
             </div>
@@ -586,7 +586,7 @@ export default function Dashboard() {
                 id="editFoodQuantity"
                 type="number"
                 value={foodToEdit?.quantity || 1}
-                onChange={(e) => setFoodToEdit({ ...foodToEdit, quantity: parseInt(e.target.value) || 1 })}
+                onChange={(e) => setFoodToEdit(foodToEdit ? { ...foodToEdit, quantity: parseInt(e.target.value) || 1 } : null)}
                 min="1"
                 className="w-full mt-1"
               />
@@ -597,7 +597,7 @@ export default function Dashboard() {
                 id="editFoodExpirationDate"
                 type="date"
                 value={foodToEdit?.expiration_date || ''}
-                onChange={(e) => setFoodToEdit({ ...foodToEdit, expiration_date: e.target.value })}
+                onChange={(e) => setFoodToEdit(foodToEdit ? { ...foodToEdit, expiration_date: e.target.value } : null)}
                 className="w-full mt-1"
               />
             </div>
